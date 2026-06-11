@@ -3,683 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <meta name="description" content="Сервис проверки идеи цифрового продукта на подписочную модель: оценка SaaS-потенциала, сравнение идей, план проверки спроса на 7 дней." />
   <title>Идея на миллион? — проверка идеи на подписку</title>
-
-  <!--
-  ============================================================
-  СЕРВИС: Идея на миллион?
-  НАЗНАЧЕНИЕ:
-  Проверка идеи цифрового сервиса на пригодность к подписочной модели.
-
-  ЧТО ОЦЕНИВАЕТ:
-  - силу боли клиента;
-  - частоту проблемы;
-  - готовность платить;
-  - подписочный потенциал;
-  - доступ к аудитории;
-  - сложность запуска;
-  - риски и точки роста.
-
-  ОСОБЕННОСТИ:
-  - работает без сервера и внешних библиотек;
-  - данные хранятся только в браузере пользователя;
-  - формирует текстовый отчёт для копирования;
-  - сохраняет историю последних проверок.
-  ============================================================
-  -->
-
-  <style>
-    :root {
-      --bg: #f3fff7;
-      --bg-2: #fffbea;
-      --card: #ffffff;
-      --card-green: #eafff1;
-      --card-yellow: #fff8d8;
-      --text: #18332f;
-      --muted: #60746f;
-      --soft: #8a9b96;
-      --border: rgba(24, 51, 47, 0.13);
-      --green: #23b26d;
-      --green-dark: #13784a;
-      --green-soft: #dffbea;
-      --yellow: #ffd166;
-      --yellow-dark: #c98b00;
-      --orange: #ff9f43;
-      --red: #ef5b6a;
-      --blue: #3a86ff;
-      --shadow: 0 24px 70px rgba(31, 74, 55, 0.14);
-      --shadow-soft: 0 12px 30px rgba(31, 74, 55, 0.1);
-      --radius: 26px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--text);
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at 12% 14%, rgba(255, 209, 102, 0.45), transparent 22%),
-        radial-gradient(circle at 88% 10%, rgba(35, 178, 109, 0.22), transparent 26%),
-        radial-gradient(circle at 85% 88%, rgba(255, 159, 67, 0.18), transparent 26%),
-        linear-gradient(135deg, #f3fff7 0%, #fffbea 48%, #ecfff4 100%);
-    }
-
-    button,
-    input,
-    select,
-    textarea {
-      font-family: inherit;
-    }
-
-    button {
-      border: 0;
-      cursor: pointer;
-    }
-
-    .page {
-      width: min(1220px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 30px 0 64px;
-    }
-
-    .hero {
-      position: relative;
-      overflow: hidden;
-      border-radius: 36px;
-      padding: 36px;
-      background:
-        linear-gradient(135deg, rgba(255,255,255,0.92), rgba(234,255,241,0.88));
-      border: 1px solid rgba(24, 51, 47, 0.11);
-      box-shadow: var(--shadow);
-    }
-
-    .hero::before {
-      content: "💡";
-      position: absolute;
-      right: 44px;
-      top: 30px;
-      font-size: 92px;
-      filter: drop-shadow(0 18px 24px rgba(255, 209, 102, 0.45));
-      transform: rotate(8deg);
-      opacity: 0.95;
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      width: 360px;
-      height: 360px;
-      right: -130px;
-      bottom: -160px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 209, 102, 0.48), rgba(35, 178, 109, 0.12), transparent 68%);
-      pointer-events: none;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 1;
-      max-width: 860px;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 13px;
-      border-radius: 999px;
-      color: var(--green-dark);
-      background: var(--green-soft);
-      border: 1px solid rgba(35, 178, 109, 0.2);
-      font-size: 13px;
-      font-weight: 900;
-    }
-
-    h1 {
-      margin: 20px 0 14px;
-      max-width: 820px;
-      font-size: clamp(38px, 6vw, 74px);
-      line-height: 0.94;
-      letter-spacing: -0.07em;
-      color: #12352f;
-    }
-
-    .hero p {
-      margin: 0;
-      max-width: 760px;
-      color: var(--muted);
-      font-size: 18px;
-      line-height: 1.68;
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 24px;
-    }
-
-    .btn {
-      min-height: 47px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 9px;
-      padding: 12px 18px;
-      border-radius: 16px;
-      color: #ffffff;
-      background: linear-gradient(135deg, var(--green), var(--green-dark));
-      font-size: 14px;
-      font-weight: 900;
-      box-shadow: 0 14px 28px rgba(35, 178, 109, 0.24);
-      transition: 0.18s ease;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-    }
-
-    .btn.secondary {
-      color: var(--text);
-      background: #ffffff;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft);
-    }
-
-    .btn.yellow {
-      color: #4b3600;
-      background: linear-gradient(135deg, #ffeaa0, var(--yellow));
-      box-shadow: 0 14px 28px rgba(255, 209, 102, 0.32);
-    }
-
-    .btn.danger {
-      color: #ffffff;
-      background: linear-gradient(135deg, #ff7b8a, var(--red));
-      box-shadow: 0 14px 28px rgba(239, 91, 106, 0.2);
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
-      gap: 18px;
-      align-items: start;
-      margin-top: 18px;
-    }
-
-    .panel {
-      overflow: hidden;
-      border-radius: var(--radius);
-      background: rgba(255, 255, 255, 0.88);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft);
-    }
-
-    .panel-header {
-      padding: 21px 23px;
-      border-bottom: 1px solid var(--border);
-      background:
-        linear-gradient(135deg, rgba(234,255,241,0.92), rgba(255,248,216,0.58));
-    }
-
-    .panel-header h2 {
-      margin: 0;
-      font-size: 21px;
-      letter-spacing: -0.03em;
-    }
-
-    .panel-header p {
-      margin: 7px 0 0;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.55;
-    }
-
-    .panel-body {
-      padding: 22px;
-    }
-
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 4px 0 16px;
-      color: var(--green-dark);
-      font-size: 14px;
-      font-weight: 950;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .section-title span {
-      display: inline-grid;
-      place-items: center;
-      width: 29px;
-      height: 29px;
-      border-radius: 12px;
-      background: var(--card-yellow);
-      border: 1px solid rgba(255, 209, 102, 0.55);
-      font-size: 14px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin-bottom: 26px;
-    }
-
-    .form-grid.one {
-      grid-template-columns: 1fr;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 7px;
-      color: #244640;
-      font-size: 13px;
-      font-weight: 850;
-    }
-
-    input,
-    select,
-    textarea {
-      width: 100%;
-      min-height: 46px;
-      padding: 12px 13px;
-      border: 1px solid rgba(24, 51, 47, 0.14);
-      border-radius: 16px;
-      outline: none;
-      color: var(--text);
-      background: #ffffff;
-      font-size: 15px;
-      transition: 0.2s ease;
-    }
-
-    textarea {
-      min-height: 98px;
-      resize: vertical;
-      line-height: 1.55;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: rgba(35, 178, 109, 0.65);
-      box-shadow: 0 0 0 4px rgba(35, 178, 109, 0.12);
-    }
-
-    .hint {
-      margin-top: 6px;
-      color: var(--soft);
-      font-size: 12px;
-      line-height: 1.42;
-    }
-
-    .range-row {
-      display: grid;
-      grid-template-columns: 1fr 54px;
-      gap: 10px;
-      align-items: center;
-    }
-
-    input[type="range"] {
-      min-height: auto;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      accent-color: var(--green);
-    }
-
-    .range-value {
-      min-height: 38px;
-      display: grid;
-      place-items: center;
-      border-radius: 14px;
-      color: #4b3600;
-      background: var(--card-yellow);
-      border: 1px solid rgba(255, 209, 102, 0.65);
-      font-weight: 950;
-    }
-
-    .score-card {
-      padding: 22px;
-      border: 1px solid rgba(24, 51, 47, 0.12);
-      border-radius: 25px;
-      background:
-        linear-gradient(135deg, #ffffff, #effff5);
-      box-shadow: var(--shadow-soft);
-    }
-
-    .score-top {
-      display: grid;
-      grid-template-columns: 124px minmax(0, 1fr);
-      gap: 18px;
-      align-items: center;
-    }
-
-    .score-circle {
-      width: 124px;
-      height: 124px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background:
-        radial-gradient(circle at center, #ffffff 58%, transparent 59%),
-        conic-gradient(var(--yellow) 0deg, var(--green) 180deg, rgba(24,51,47,0.08) 180deg 360deg);
-      box-shadow:
-        inset 0 0 24px rgba(35, 178, 109, 0.08),
-        0 14px 28px rgba(35, 178, 109, 0.12);
-    }
-
-    .score-circle strong {
-      font-size: 36px;
-      letter-spacing: -0.07em;
-      color: #12352f;
-    }
-
-    .verdict-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 11px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 950;
-      border: 1px solid var(--border);
-      background: #ffffff;
-    }
-
-    .verdict-green {
-      color: var(--green-dark);
-      border-color: rgba(35, 178, 109, 0.26);
-      background: var(--green-soft);
-    }
-
-    .verdict-yellow {
-      color: #7a5300;
-      border-color: rgba(255, 209, 102, 0.58);
-      background: var(--card-yellow);
-    }
-
-    .verdict-red {
-      color: #a12435;
-      border-color: rgba(239, 91, 106, 0.28);
-      background: #fff0f2;
-    }
-
-    .result-title {
-      margin: 10px 0 6px;
-      font-size: 22px;
-      line-height: 1.14;
-      letter-spacing: -0.035em;
-    }
-
-    .result-subtitle {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.55;
-    }
-
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    .metric {
-      min-height: 88px;
-      padding: 14px;
-      border: 1px solid rgba(24, 51, 47, 0.11);
-      border-radius: 19px;
-      background: #ffffff;
-    }
-
-    .metric small {
-      display: block;
-      margin-bottom: 7px;
-      color: var(--soft);
-      font-size: 12px;
-      line-height: 1.32;
-    }
-
-    .metric strong {
-      display: block;
-      font-size: 21px;
-      letter-spacing: -0.04em;
-    }
-
-    .metric.good {
-      background: #effff5;
-    }
-
-    .metric.good strong {
-      color: var(--green-dark);
-    }
-
-    .metric.warn {
-      background: #fff9df;
-    }
-
-    .metric.warn strong {
-      color: var(--yellow-dark);
-    }
-
-    .metric.bad {
-      background: #fff0f2;
-    }
-
-    .metric.bad strong {
-      color: #b22c3f;
-    }
-
-    .insights {
-      display: grid;
-      gap: 10px;
-      margin-top: 18px;
-    }
-
-    .insight {
-      padding: 14px;
-      border-radius: 19px;
-      border: 1px solid rgba(24, 51, 47, 0.11);
-      background: #ffffff;
-      box-shadow: 0 8px 22px rgba(31, 74, 55, 0.06);
-    }
-
-    .insight-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: flex-start;
-      margin-bottom: 8px;
-    }
-
-    .insight h3 {
-      margin: 0;
-      font-size: 15px;
-      line-height: 1.25;
-    }
-
-    .insight p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.55;
-    }
-
-    .tag {
-      flex: 0 0 auto;
-      padding: 5px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 950;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .tag.green {
-      color: var(--green-dark);
-      background: var(--green-soft);
-    }
-
-    .tag.yellow {
-      color: #7a5300;
-      background: var(--card-yellow);
-    }
-
-    .tag.red {
-      color: #a12435;
-      background: #fff0f2;
-    }
-
-    .tag.blue {
-      color: #1554a8;
-      background: #eaf2ff;
-    }
-
-    .report-box {
-      margin-top: 18px;
-    }
-
-    .report-box textarea {
-      min-height: 320px;
-      color: #244640;
-      background: #ffffff;
-      font-size: 13px;
-    }
-
-    .history {
-      display: grid;
-      gap: 10px;
-    }
-
-    .history-item {
-      padding: 12px 14px;
-      border: 1px solid rgba(24, 51, 47, 0.11);
-      border-radius: 17px;
-      background: #ffffff;
-    }
-
-    .history-item strong {
-      display: block;
-      margin-bottom: 5px;
-      font-size: 14px;
-    }
-
-    .history-item span {
-      display: block;
-      color: var(--soft);
-      font-size: 12px;
-      line-height: 1.45;
-    }
-
-    .empty-state {
-      padding: 20px;
-      border: 1px dashed rgba(24,51,47,0.23);
-      border-radius: 18px;
-      color: var(--soft);
-      background: rgba(255,255,255,0.58);
-      text-align: center;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .footer-note {
-      margin: 18px 0 0;
-      color: var(--soft);
-      font-size: 12px;
-      line-height: 1.55;
-    }
-
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: 24px;
-      transform: translateX(-50%) translateY(28px);
-      padding: 12px 16px;
-      border-radius: 999px;
-      color: #ffffff;
-      background: var(--green-dark);
-      font-size: 14px;
-      font-weight: 950;
-      opacity: 0;
-      pointer-events: none;
-      transition: 0.25s ease;
-      box-shadow: 0 18px 45px rgba(31, 74, 55, 0.24);
-      z-index: 50;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    @media (max-width: 1000px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-
-      .score-top {
-        grid-template-columns: 104px minmax(0, 1fr);
-      }
-
-      .score-circle {
-        width: 104px;
-        height: 104px;
-      }
-
-      .hero::before {
-        font-size: 66px;
-        right: 24px;
-        top: 24px;
-      }
-    }
-
-    @media (max-width: 680px) {
-      .page {
-        width: min(100% - 20px, 1220px);
-        padding-top: 16px;
-      }
-
-      .hero {
-        padding: 24px;
-      }
-
-      .hero::before {
-        opacity: 0.25;
-      }
-
-      .form-grid,
-      .metrics {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-actions {
-        flex-direction: column;
-      }
-
-      .btn {
-        width: 100%;
-      }
-
-      .score-top {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="styles/main.css" />
 </head>
-
 <body>
   <main class="page">
     <section class="hero">
@@ -693,12 +20,30 @@
         </p>
 
         <div class="hero-actions">
-          <button class="btn" onclick="runValidation()">🚀 Проверить идею</button>
-          <button class="btn yellow" onclick="fillDemo()">💡 Заполнить пример</button>
-          <button class="btn secondary" onclick="copyReport()">📋 Скопировать отчёт</button>
-          <button class="btn danger" onclick="resetForm()">🧹 Очистить</button>
+          <button class="btn" type="button" onclick="runValidation()">🚀 Проверить идею</button>
+          <button class="btn yellow" type="button" onclick="fillDemo()">💡 Заполнить пример</button>
+          <button class="btn secondary" type="button" onclick="copyReport()">📋 Скопировать отчёт</button>
+          <button class="btn secondary" type="button" onclick="downloadReport()">⬇️ Скачать отчёт</button>
         </div>
       </div>
+    </section>
+
+    <section class="value-strip" aria-label="Ключевые возможности сервиса">
+      <article class="value-card">
+        <span>01</span>
+        <strong>Оценка подписочного потенциала</strong>
+        <p>Показывает, есть ли у идеи регулярная боль и причина платить каждый месяц.</p>
+      </article>
+      <article class="value-card">
+        <span>02</span>
+        <strong>Сравнение двух идей</strong>
+        <p>Помогает выбрать, какую идею тестировать первой, если вариантов несколько.</p>
+      </article>
+      <article class="value-card">
+        <span>03</span>
+        <strong>План проверки на 7 дней</strong>
+        <p>Даёт конкретные шаги: интервью, тест цены, лендинг, заявки и первые выводы.</p>
+      </article>
     </section>
 
     <section class="layout">
@@ -902,14 +247,15 @@
           </div>
 
           <div class="hero-actions">
-            <button class="btn" onclick="runValidation()">🚀 Проверить идею</button>
-            <button class="btn yellow" onclick="fillDemo()">💡 Заполнить пример</button>
-            <button class="btn danger" onclick="resetForm()">🧹 Очистить форму</button>
+            <button class="btn" type="button" onclick="runValidation()">🚀 Проверить идею</button>
+            <button class="btn yellow" type="button" onclick="fillDemo()">💡 Заполнить пример</button>
+            <button class="btn secondary" type="button" onclick="scrollToCompare()">⚖️ Сравнить с другой идеей</button>
+            <button class="btn danger" type="button" onclick="resetForm()">🧹 Очистить форму</button>
           </div>
         </div>
       </div>
 
-      <aside class="panel">
+      <aside class="panel sticky-panel">
         <div class="panel-header">
           <h2>Результат проверки</h2>
           <p>
@@ -944,7 +290,7 @@
                 <strong>—</strong>
               </div>
               <div class="metric">
-                <small>Сложность запуска</small>
+                <small>Реалистичность запуска</small>
                 <strong>—</strong>
               </div>
               <div class="metric">
@@ -959,959 +305,148 @@
               Здесь появятся выводы после проверки идеи.
             </div>
           </div>
+        </div>
+      </aside>
+    </section>
 
-          <div class="report-box">
-            <div class="section-title"><span>📄</span> Готовый отчёт</div>
-            <textarea id="report" readonly placeholder="После проверки здесь появится структурированный отчёт. Его можно скопировать и использовать для обсуждения идеи, презентации или дальнейшей разработки."></textarea>
+    <section class="extra-layout" id="comparisonSection">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Сравнение двух идей</h2>
+          <p>
+            Если идей несколько, не начинайте с той, которая просто нравится больше. Сравните их по боли,
+            частоте использования, готовности платить и сложности запуска.
+          </p>
+        </div>
 
-            <div class="hero-actions">
-              <button class="btn secondary" onclick="copyReport()">📋 Скопировать отчёт</button>
+        <div class="panel-body">
+          <div class="section-title"><span>⚖️</span> Вторая идея для сравнения</div>
+
+          <div class="form-grid">
+            <div>
+              <label for="secondIdeaName">Название второй идеи</label>
+              <input id="secondIdeaName" type="text" placeholder="Например: Генератор техпаспортов товаров" />
+            </div>
+
+            <div>
+              <label for="secondAudience">Аудитория</label>
+              <input id="secondAudience" type="text" placeholder="Например: поставщики и B2B-продавцы" />
+            </div>
+
+            <div>
+              <label for="secondProblem">Главная боль</label>
+              <input id="secondProblem" type="text" placeholder="Например: долго готовить карточки и документы" />
+            </div>
+
+            <div>
+              <label for="secondPayReadiness">Готовность платить</label>
+              <select id="secondPayReadiness">
+                <option value="none">Пока непонятно</option>
+                <option value="low">До 500 ₽</option>
+                <option value="middle">500–2 000 ₽</option>
+                <option value="good">2 000–10 000 ₽</option>
+                <option value="high">10 000 ₽+</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="secondPainLevel">Сила боли</label>
+              <div class="range-row">
+                <input id="secondPainLevel" type="range" min="1" max="10" value="6" oninput="syncRange('secondPainLevel', 'secondPainValue')" />
+                <div class="range-value" id="secondPainValue">6</div>
+              </div>
+            </div>
+
+            <div>
+              <label for="secondFrequency">Частота проблемы</label>
+              <select id="secondFrequency">
+                <option value="daily">Ежедневно</option>
+                <option value="weekly">Еженедельно</option>
+                <option value="monthly">Ежемесячно</option>
+                <option value="quarterly">Раз в квартал</option>
+                <option value="rare">Редко / нерегулярно</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="secondComplexity">Сложность запуска</label>
+              <div class="range-row">
+                <input id="secondComplexity" type="range" min="1" max="10" value="5" oninput="syncRange('secondComplexity', 'secondComplexityValue')" />
+                <div class="range-value" id="secondComplexityValue">5</div>
+              </div>
+            </div>
+
+            <div>
+              <label for="secondAccess">Доступ к аудитории</label>
+              <div class="range-row">
+                <input id="secondAccess" type="range" min="1" max="10" value="5" oninput="syncRange('secondAccess', 'secondAccessValue')" />
+                <div class="range-value" id="secondAccessValue">5</div>
+              </div>
             </div>
           </div>
 
-          <div class="report-box">
-            <div class="section-title"><span>🕓</span> История проверок</div>
-            <div class="history" id="history"></div>
+          <div class="hero-actions">
+            <button class="btn" type="button" onclick="compareIdeas()">⚖️ Сравнить идеи</button>
+            <button class="btn yellow" type="button" onclick="fillSecondIdeaDemo()">💡 Пример второй идеи</button>
           </div>
 
-          <p class="footer-note">
-            Расчёт является предварительной бизнес-диагностикой. Для принятия решений нужны интервью с клиентами,
-            проверка каналов привлечения, тест цены, анализ конкурентов и реальные предзаказы.
+          <div class="comparison-result" id="comparisonResult">
+            <div class="empty-state">Здесь появится сравнение двух идей.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2>План проверки на 7 дней</h2>
+          <p>
+            После оценки сервис формирует конкретный недельный план: что сделать, чтобы проверить спрос,
+            а не застрять в бесконечной доработке идеи.
           </p>
         </div>
-      </aside>
+
+        <div class="panel-body">
+          <div class="week-plan" id="weekPlan">
+            <div class="empty-state">План появится после проверки идеи.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="report-layout">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Готовый отчёт</h2>
+          <p>
+            Структурированный отчёт можно скопировать, скачать в Markdown и использовать как основу для обсуждения,
+            презентации или следующего этапа разработки.
+          </p>
+        </div>
+
+        <div class="panel-body">
+          <textarea id="report" class="report-textarea" readonly placeholder="После проверки здесь появится структурированный отчёт."></textarea>
+          <div class="hero-actions">
+            <button class="btn secondary" type="button" onclick="copyReport()">📋 Скопировать отчёт</button>
+            <button class="btn secondary" type="button" onclick="downloadReport()">⬇️ Скачать .md</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2>История проверок</h2>
+          <p>Последние проверки сохраняются только в браузере пользователя.</p>
+        </div>
+
+        <div class="panel-body">
+          <div class="history" id="history"></div>
+        </div>
+      </div>
     </section>
   </main>
 
   <div class="toast" id="toast">Готово</div>
 
-  <script>
-    const STORAGE_KEY = "million_idea_validator_history_v1";
-
-    const $ = (id) => document.getElementById(id);
-
-    function syncRange(inputId, valueId) {
-      $(valueId).textContent = $(inputId).value;
-    }
-
-    function getText(id) {
-      return String($(id).value || "").trim();
-    }
-
-    function getNumber(id) {
-      const raw = String($(id).value || "").replace(",", ".");
-      const value = Number(raw);
-      return Number.isFinite(value) ? value : 0;
-    }
-
-    function clamp(value, min, max) {
-      return Math.min(Math.max(value, min), max);
-    }
-
-    function money(value) {
-      if (!Number.isFinite(value)) return "—";
-      return new Intl.NumberFormat("ru-RU", {
-        maximumFractionDigits: 0
-      }).format(value) + " ₽";
-    }
-
-    function showToast(message) {
-      const toast = $("toast");
-      toast.textContent = message;
-      toast.classList.add("show");
-
-      setTimeout(() => {
-        toast.classList.remove("show");
-      }, 1800);
-    }
-
-    function runValidation() {
-      const data = {
-        ideaName: getText("ideaName") || "Идея без названия",
-        businessModel: getText("businessModel"),
-        ideaDescription: getText("ideaDescription"),
-        targetAudience: getText("targetAudience"),
-        mainProblem: getText("mainProblem"),
-
-        painLevel: getNumber("painLevel"),
-        urgency: getNumber("urgency"),
-        frequency: getText("frequency"),
-        payReadiness: getText("payReadiness"),
-        price: getNumber("price"),
-        monthlyUsers: getNumber("monthlyUsers"),
-
-        competition: getText("competition"),
-        differentiation: getNumber("differentiation"),
-        channel: getText("channel"),
-        accessToAudience: getNumber("accessToAudience"),
-
-        manualWork: getText("manualWork"),
-        retention: getText("retention"),
-        dataAvailability: getText("dataAvailability"),
-        buildComplexity: getNumber("buildComplexity"),
-        alternatives: getText("alternatives")
-      };
-
-      const result = calculateIdea(data);
-      renderResult(data, result);
-      saveHistory(data, result);
-      renderHistory();
-      showToast("Идея проверена");
-    }
-
-    function calculateIdea(data) {
-      const frequencyScoreMap = {
-        daily: 100,
-        weekly: 86,
-        monthly: 68,
-        quarterly: 42,
-        rare: 18
-      };
-
-      const payScoreMap = {
-        none: 32,
-        low: 46,
-        middle: 66,
-        good: 86,
-        high: 100
-      };
-
-      const competitionScoreMap = {
-        none: 58,
-        low: 78,
-        medium: 86,
-        high: 62,
-        crowded: 38
-      };
-
-      const channelScoreMap = {
-        content: 74,
-        direct: 82,
-        marketplace: 78,
-        ads: 52,
-        seo: 66,
-        unknown: 24
-      };
-
-      const manualWorkScoreMap = {
-        high: 92,
-        medium: 72,
-        low: 38,
-        unclear: 28
-      };
-
-      const retentionScoreMap = {
-        strong: 96,
-        medium: 66,
-        weak: 26,
-        unclear: 30
-      };
-
-      const dataScoreMap = {
-        easy: 86,
-        medium: 68,
-        hard: 38,
-        none: 22
-      };
-
-      const painScore = Math.round(((data.painLevel + data.urgency) / 20) * 100);
-      const frequencyScore = frequencyScoreMap[data.frequency] || 40;
-      const payScore = payScoreMap[data.payReadiness] || 35;
-      const competitionScore = competitionScoreMap[data.competition] || 50;
-      const channelScore = channelScoreMap[data.channel] || 40;
-      const manualWorkScore = manualWorkScoreMap[data.manualWork] || 40;
-      const retentionScore = retentionScoreMap[data.retention] || 40;
-      const dataAvailabilityScore = dataScoreMap[data.dataAvailability] || 40;
-
-      const audienceClarityScore = getTextQualityScore(data.targetAudience, 10, 50, 88);
-      const problemClarityScore = getTextQualityScore(data.mainProblem, 10, 45, 90);
-      const descriptionScore = getTextQualityScore(data.ideaDescription, 25, 90, 92);
-
-      const differentiationScore = data.differentiation * 10;
-      const accessScore = data.accessToAudience * 10;
-
-      const buildScore = clamp(
-        Math.round((dataAvailabilityScore * 0.42) + (manualWorkScore * 0.26) + ((11 - data.buildComplexity) * 10 * 0.32)),
-        0,
-        100
-      );
-
-      const subscriptionScore = Math.round(
-        frequencyScore * 0.42 +
-        retentionScore * 0.42 +
-        manualWorkScore * 0.16
-      );
-
-      const marketScore = Math.round(
-        channelScore * 0.35 +
-        accessScore * 0.35 +
-        audienceClarityScore * 0.30
-      );
-
-      const clarityScore = Math.round(
-        audienceClarityScore * 0.30 +
-        problemClarityScore * 0.36 +
-        descriptionScore * 0.34
-      );
-
-      const paymentScore = Math.round(
-        payScore * 0.74 +
-        getPriceRealismScore(data.price, data.payReadiness, data.businessModel) * 0.26
-      );
-
-      const estimatedMRR = data.price * data.monthlyUsers;
-
-      let score = Math.round(
-        painScore * 0.20 +
-        subscriptionScore * 0.22 +
-        paymentScore * 0.17 +
-        marketScore * 0.15 +
-        differentiationScore * 0.10 +
-        buildScore * 0.10 +
-        competitionScore * 0.06
-      );
-
-      if (clarityScore < 45) score -= 8;
-      if (data.retention === "weak" && data.frequency === "rare") score -= 12;
-      if (data.channel === "unknown") score -= 7;
-      if (data.payReadiness === "none" && data.price > 0) score -= 5;
-
-      score = clamp(score, 0, 100);
-
-      const verdict = getVerdict(score);
-
-      const positioning = buildPositioning(data);
-      const firstVersion = buildFirstVersion(data, resultLabelByScore(score));
-      const validationPlan = buildValidationPlan(data, score);
-      const pricingAdvice = buildPricingAdvice(data, estimatedMRR);
-
-      const insights = buildInsights(data, {
-        score,
-        painScore,
-        subscriptionScore,
-        paymentScore,
-        marketScore,
-        buildScore,
-        competitionScore,
-        clarityScore,
-        estimatedMRR,
-        frequencyScore,
-        retentionScore,
-        channelScore,
-        payScore,
-        differentiationScore,
-        accessScore
-      });
-
-      return {
-        score,
-        verdict,
-        painScore,
-        subscriptionScore,
-        paymentScore,
-        marketScore,
-        buildScore,
-        competitionScore,
-        clarityScore,
-        estimatedMRR,
-        positioning,
-        firstVersion,
-        validationPlan,
-        pricingAdvice,
-        insights
-      };
-    }
-
-    function getTextQualityScore(text, lowLength, goodLength, maxScore) {
-      const clean = String(text || "").trim();
-
-      if (!clean) return 12;
-      if (clean.length < lowLength) return 34;
-      if (clean.length < goodLength) return 64;
-
-      return maxScore;
-    }
-
-    function getPriceRealismScore(price, payReadiness, businessModel) {
-      if (price <= 0) return 36;
-
-      if (payReadiness === "low") {
-        if (price <= 500) return 88;
-        if (price <= 1200) return 54;
-        return 28;
-      }
-
-      if (payReadiness === "middle") {
-        if (price >= 500 && price <= 2500) return 90;
-        if (price < 500) return 62;
-        if (price <= 5000) return 58;
-        return 34;
-      }
-
-      if (payReadiness === "good") {
-        if (price >= 1500 && price <= 12000) return 92;
-        if (price < 1500) return 60;
-        return 66;
-      }
-
-      if (payReadiness === "high") {
-        if (price >= 7000) return 90;
-        return 56;
-      }
-
-      if (businessModel === "b2b" || businessModel === "ecom" || businessModel === "local") {
-        if (price >= 990 && price <= 15000) return 74;
-      }
-
-      return 52;
-    }
-
-    function getVerdict(score) {
-      if (score >= 78) {
-        return {
-          label: "Сильный потенциал",
-          className: "verdict-green",
-          emoji: "🌱",
-          title: "Идею стоит проверять быстро",
-          subtitle: "Есть признаки повторяемой боли, понятной ценности и подписочного сценария. Следующий шаг — интервью, предзаказы и первая платная версия."
-        };
-      }
-
-      if (score >= 55) {
-        return {
-          label: "Нужна доработка гипотезы",
-          className: "verdict-yellow",
-          emoji: "💡",
-          title: "Идея перспективна, но есть слабые места",
-          subtitle: "Перед разработкой нужно уточнить аудиторию, платёжную мотивацию, канал привлечения и причину платить каждый месяц."
-        };
-      }
-
-      return {
-        label: "Высокий риск",
-        className: "verdict-red",
-        emoji: "⚠️",
-        title: "Идею рано упаковывать в подписку",
-        subtitle: "Сначала нужно сузить аудиторию, доказать регулярную боль и проверить готовность платить. Иначе есть риск сделать сервис, которым воспользуются один раз."
-      };
-    }
-
-    function resultLabelByScore(score) {
-      if (score >= 78) return "strong";
-      if (score >= 55) return "medium";
-      return "weak";
-    }
-
-    function buildPositioning(data) {
-      const audience = data.targetAudience || "конкретной аудитории";
-      const problem = data.mainProblem || "повторяющуюся рабочую задачу";
-
-      return `${data.ideaName} — сервис для ${audience}, который помогает решить проблему: ${problem}. Основная ценность — быстрее принимать решение, экономить время и снижать риск ошибок.`;
-    }
-
-    function buildFirstVersion(data, level) {
-      const base = [
-        "Форма ввода ключевых данных по задаче клиента",
-        "Автоматическая диагностика по 5–7 понятным критериям",
-        "Итоговый статус: зелёный / жёлтый / красный",
-        "Список рекомендаций и следующий шаг",
-        "Копируемый отчёт для клиента или команды"
-      ];
-
-      if (level === "strong") {
-        base.push("Мини-личный кабинет или история проверок");
-        base.push("Шаблоны для разных сегментов аудитории");
-      }
-
-      if (level === "weak") {
-        return [
-          "Один простой сценарий без сложных интеграций",
-          "Ручной ввод данных вместо автоматического подключения API",
-          "Один конкретный сегмент аудитории",
-          "Один главный результат, за который пользователь готов платить",
-          "Форма заявки или список ожидания вместо сложной оплаты"
-        ];
-      }
-
-      return base;
-    }
-
-    function buildValidationPlan(data, score) {
-      const plan = [];
-
-      plan.push("Сформулировать одну узкую аудиторию и одну главную боль.");
-      plan.push("Провести 10–15 коротких интервью с потенциальными клиентами.");
-      plan.push("Показать прототип или лендинг и спросить, за что человек реально заплатил бы.");
-      plan.push("Проверить цену: предложить 2–3 тарифных варианта.");
-      plan.push("Собрать первые заявки, предзаказы или письма заинтересованных клиентов.");
-
-      if (score >= 78) {
-        plan.push("Запустить закрытый доступ для первых пользователей и измерить повторное использование.");
-      } else {
-        plan.push("Не начинать сложную разработку до подтверждения регулярной потребности.");
-      }
-
-      return plan;
-    }
-
-    function buildPricingAdvice(data, estimatedMRR) {
-      let advice = "";
-
-      if (data.price <= 0) {
-        advice = "Цена не указана. Для проверки спроса стоит предложить 2–3 тарифа: базовый, расширенный и индивидуальный.";
-      } else if (data.price < 500) {
-        advice = "Цена низкая. Для подписочной модели потребуется много пользователей, поэтому важно заранее понять канал массового привлечения.";
-      } else if (data.price <= 2500) {
-        advice = "Цена подходит для лёгкого входа. Хороший вариант для самостоятельных специалистов, небольших команд и первых платных тестов.";
-      } else if (data.price <= 10000) {
-        advice = "Цена выглядит как B2B/B2Pro-уровень. Нужно показывать экономию времени, денег или снижение ошибок.";
-      } else {
-        advice = "Высокая цена требует сильного доказательства ценности: кейсов, расчётов экономии, демонстрации результата и персональной продажи.";
-      }
-
-      if (estimatedMRR > 0) {
-        advice += ` При цели ${data.monthlyUsers} платных клиентов потенциальный MRR составит около ${money(estimatedMRR)}.`;
-      }
-
-      return advice;
-    }
-
-    function buildInsights(data, metrics) {
-      const insights = [];
-
-      function add(level, title, text) {
-        insights.push({ level, title, text });
-      }
-
-      if (!data.ideaDescription || data.ideaDescription.length < 40) {
-        add(
-          "yellow",
-          "Описание идеи нужно усилить",
-          "Сейчас описание слишком короткое. Хорошая формулировка должна объяснять: для кого сервис, какую боль решает и какой результат даёт."
-        );
-      }
-
-      if (!data.targetAudience || data.targetAudience.length < 10) {
-        add(
-          "red",
-          "Аудитория слишком широкая",
-          "Для подписочного сервиса важно начинать с узкого сегмента. Например: не «предприниматели», а «селлеры Ozon с рекламными расходами от 50 000 ₽ в месяц»."
-        );
-      } else {
-        add(
-          "green",
-          "Аудитория обозначена",
-          "Есть база для проверки спроса. Следующий шаг — найти 10–15 представителей этой аудитории и обсудить реальную боль."
-        );
-      }
-
-      if (metrics.painScore >= 75) {
-        add(
-          "green",
-          "Боль выглядит достаточно сильной",
-          "Высокая сила боли повышает шанс, что пользователь будет готов платить не за функцию, а за решение проблемы."
-        );
-      } else if (metrics.painScore < 50) {
-        add(
-          "red",
-          "Боль может быть недостаточно острой",
-          "Если проблема не влияет на деньги, время, клиентов или риски, подписку будет сложно продать."
-        );
-      } else {
-        add(
-          "yellow",
-          "Боль есть, но её нужно конкретизировать",
-          "Уточните, что именно теряет клиент: деньги, время, заявки, качество, контроль или спокойствие."
-        );
-      }
-
-      if (metrics.subscriptionScore >= 75) {
-        add(
-          "green",
-          "Есть причина платить регулярно",
-          "Проблема повторяется, а значит подписочная модель может быть уместной."
-        );
-      } else if (data.retention === "weak" || data.frequency === "rare") {
-        add(
-          "red",
-          "Риск одноразового использования",
-          "Если сервис нужен один раз, подписка будет слабой. Возможно, лучше подойдёт разовый платный отчёт, пакет проверок или консультационный формат."
-        );
-      } else {
-        add(
-          "yellow",
-          "Подписочную механику нужно усилить",
-          "Добавьте регулярную ценность: мониторинг, историю, напоминания, еженедельные отчёты, обновления данных или сравнение периодов."
-        );
-      }
-
-      if (metrics.paymentScore >= 76) {
-        add(
-          "green",
-          "Платёжная гипотеза выглядит рабочей",
-          "Есть признаки, что клиент может платить ежемесячно. Теперь нужно проверить цену на реальных людях."
-        );
-      } else if (data.payReadiness === "none") {
-        add(
-          "yellow",
-          "Готовность платить не подтверждена",
-          "Нужно прямо спросить потенциальных клиентов, сколько они платят сейчас и за какой результат готовы платить."
-        );
-      } else {
-        add(
-          "yellow",
-          "Цена требует проверки",
-          "Возможна проблема между заявленной ценой и ценностью. Проверьте несколько тарифов и реакцию аудитории."
-        );
-      }
-
-      if (data.channel === "unknown") {
-        add(
-          "red",
-          "Неясен канал привлечения",
-          "Даже сильная идея не станет бизнесом без понятного способа находить клиентов. Выберите один стартовый канал и проверьте его."
-        );
-      } else if (metrics.marketScore >= 70) {
-        add(
-          "green",
-          "Есть основа для первых продаж",
-          "Канал привлечения и доступ к аудитории выглядят достаточно реалистично для проверки спроса."
-        );
-      } else {
-        add(
-          "yellow",
-          "Привлечение может быть узким местом",
-          "Стоит заранее понять, где именно находятся клиенты и почему они обратят внимание на новый сервис."
-        );
-      }
-
-      if (data.competition === "crowded") {
-        add(
-          "red",
-          "Рынок перегрет",
-          "На перегретом рынке нужна очень чёткая специализация: ниша, сегмент, необычный сценарий или сильная отстройка."
-        );
-      } else if (data.competition === "none") {
-        add(
-          "yellow",
-          "Нет конкурентов — это не всегда плюс",
-          "Отсутствие конкурентов может означать свободную нишу, но может означать и слабый спрос. Нужна проверка через интервью."
-        );
-      } else {
-        add(
-          "blue",
-          "Конкуренция может подтвердить спрос",
-          "Если конкуренты есть, это сигнал, что проблема уже кому-то важна. Вопрос — в отстройке и более точном сегменте."
-        );
-      }
-
-      if (metrics.buildScore < 45) {
-        add(
-          "red",
-          "Первая версия может быть слишком сложной",
-          "Сократите продукт до одного сценария. Не начинайте с личного кабинета, сложных API, оплаты и автоматизаций, пока не подтверждён спрос."
-        );
-      } else if (metrics.buildScore >= 72) {
-        add(
-          "green",
-          "Первую версию можно собрать быстро",
-          "Реалистичный старт повышает шанс быстро проверить идею и не потратить месяцы на лишние функции."
-        );
-      } else {
-        add(
-          "yellow",
-          "Сложность умеренная",
-          "Перед разработкой стоит отделить обязательные функции от красивых, но необязательных."
-        );
-      }
-
-      if (data.alternatives && data.alternatives.length > 20) {
-        add(
-          "blue",
-          "Есть понимание текущих альтернатив",
-          "Это полезно для продажи: сервис должен быть быстрее, проще или выгоднее текущего способа решения проблемы."
-        );
-      } else {
-        add(
-          "yellow",
-          "Не описаны текущие альтернативы",
-          "Важно понять, чем клиент пользуется сейчас. Конкурентом может быть не другой SaaS, а Excel, сотрудник, подрядчик или привычка ничего не менять."
-        );
-      }
-
-      return insights.slice(0, 10);
-    }
-
-    function renderResult(data, result) {
-      $("scoreValue").textContent = result.score;
-
-      const degrees = Math.round((result.score / 100) * 360);
-      $("scoreCircle").style.background = `
-        radial-gradient(circle at center, #ffffff 58%, transparent 59%),
-        conic-gradient(${getScoreColor(result.score)} 0deg ${degrees}deg, rgba(24,51,47,0.08) ${degrees}deg 360deg)
-      `;
-
-      const verdictPill = $("verdictPill");
-      verdictPill.className = "verdict-pill " + result.verdict.className;
-      verdictPill.textContent = `${result.verdict.emoji} ${result.verdict.label}`;
-
-      $("resultTitle").textContent = result.verdict.title;
-      $("resultSubtitle").textContent = result.verdict.subtitle;
-
-      $("metrics").innerHTML = `
-        <div class="metric ${metricClass(result.subscriptionScore)}">
-          <small>Подписочный потенциал</small>
-          <strong>${result.subscriptionScore}/100</strong>
-        </div>
-
-        <div class="metric ${metricClass(result.marketScore)}">
-          <small>Готовность рынка</small>
-          <strong>${result.marketScore}/100</strong>
-        </div>
-
-        <div class="metric ${metricClass(result.buildScore)}">
-          <small>Реалистичность запуска</small>
-          <strong>${result.buildScore}/100</strong>
-        </div>
-
-        <div class="metric ${result.estimatedMRR > 0 ? "good" : "warn"}">
-          <small>Потенциальный MRR</small>
-          <strong>${result.estimatedMRR > 0 ? money(result.estimatedMRR) : "—"}</strong>
-        </div>
-
-        <div class="metric ${metricClass(result.painScore)}">
-          <small>Сила проблемы</small>
-          <strong>${result.painScore}/100</strong>
-        </div>
-
-        <div class="metric ${metricClass(result.paymentScore)}">
-          <small>Готовность платить</small>
-          <strong>${result.paymentScore}/100</strong>
-        </div>
-      `;
-
-      renderInsights(result.insights);
-      renderReport(data, result);
-    }
-
-    function getScoreColor(score) {
-      if (score >= 78) return "#23b26d";
-      if (score >= 55) return "#ffd166";
-      return "#ef5b6a";
-    }
-
-    function metricClass(value) {
-      if (value >= 75) return "good";
-      if (value >= 50) return "warn";
-      return "bad";
-    }
-
-    function renderInsights(insights) {
-      if (!insights.length) {
-        $("insights").innerHTML = `<div class="empty-state">Выводы появятся после проверки.</div>`;
-        return;
-      }
-
-      const tagNames = {
-        green: "Сила",
-        yellow: "Проверить",
-        red: "Риск",
-        blue: "Инсайт"
-      };
-
-      $("insights").innerHTML = insights.map((item) => `
-        <article class="insight">
-          <div class="insight-head">
-            <h3>${escapeHtml(item.title)}</h3>
-            <span class="tag ${item.level}">${tagNames[item.level] || "Совет"}</span>
-          </div>
-          <p>${escapeHtml(item.text)}</p>
-        </article>
-      `).join("");
-    }
-
-    function renderReport(data, result) {
-      const modelNames = {
-        b2b: "B2B — бизнесу",
-        b2c: "B2C — частным пользователям",
-        creator: "Экспертам / авторам / блогерам",
-        ecom: "Селлерам / e-commerce",
-        local: "Локальному бизнесу",
-        mixed: "Смешанная аудитория"
-      };
-
-      const frequencyNames = {
-        daily: "ежедневно",
-        weekly: "еженедельно",
-        monthly: "ежемесячно",
-        quarterly: "раз в квартал",
-        rare: "редко / нерегулярно"
-      };
-
-      const report = `
-💡 ИДЕЯ НА МИЛЛИОН?
-Проверка идеи на подписочную модель
-
-ИДЕЯ:
-${data.ideaName}
-
-Описание:
-${data.ideaDescription || "не указано"}
-
-Кому продаём:
-${modelNames[data.businessModel] || data.businessModel}
-
-Целевая аудитория:
-${data.targetAudience || "не указана"}
-
-Главная боль:
-${data.mainProblem || "не указана"}
-
-ИТОГОВАЯ ОЦЕНКА:
-${result.score}/100
-
-Вердикт:
-${result.verdict.label}
-
-Краткий вывод:
-${result.verdict.subtitle}
-
-1. КЛЮЧЕВЫЕ ОЦЕНКИ
-Сила проблемы: ${result.painScore}/100
-Подписочный потенциал: ${result.subscriptionScore}/100
-Готовность платить: ${result.paymentScore}/100
-Готовность рынка: ${result.marketScore}/100
-Реалистичность запуска: ${result.buildScore}/100
-Ясность формулировки: ${result.clarityScore}/100
-
-2. ПОДПИСОЧНАЯ ЛОГИКА
-Частота проблемы: ${frequencyNames[data.frequency] || data.frequency}
-Планируемая цена: ${data.price > 0 ? money(data.price) + " / мес" : "не указана"}
-Цель по платным клиентам за 90 дней: ${data.monthlyUsers || "не указана"}
-Потенциальный MRR: ${result.estimatedMRR > 0 ? money(result.estimatedMRR) : "не рассчитан"}
-
-3. ПОЗИЦИОНИРОВАНИЕ
-${result.positioning}
-
-4. ЦЕНОВАЯ ГИПОТЕЗА
-${result.pricingAdvice}
-
-5. ПЕРВАЯ ВЕРСИЯ ПРОДУКТА
-${result.firstVersion.map((item, index) => `${index + 1}. ${item}`).join("\n")}
-
-6. ПЛАН ПРОВЕРКИ СПРОСА
-${result.validationPlan.map((item, index) => `${index + 1}. ${item}`).join("\n")}
-
-7. ВЫВОДЫ И РИСКИ
-${result.insights.map((item, index) => `${index + 1}. ${item.title}: ${item.text}`).join("\n")}
-
-8. ТЕКУЩИЕ АЛЬТЕРНАТИВЫ КЛИЕНТА
-${data.alternatives || "не указаны"}
-
-ИТОГ:
-${result.score >= 78
-  ? "Идею стоит проверять через быстрый запуск, интервью и первые платные заявки."
-  : result.score >= 55
-    ? "Идею стоит доработать и проверить спрос до полноценной разработки."
-    : "Идею нужно сузить, усилить боль и подтвердить готовность платить до разработки."}
-
-Дисклеймер:
-Это предварительная диагностика. Для точного решения нужны интервью с клиентами, тест цены, проверка каналов привлечения и реальные заявки.
-      `.trim();
-
-      $("report").value = report;
-    }
-
-    function fillDemo() {
-      $("ideaName").value = "ProfitPulse для селлеров";
-      $("businessModel").value = "ecom";
-      $("ideaDescription").value = "Сервис помогает селлерам маркетплейсов быстро видеть, какие товары приносят прибыль, какие съедают рекламный бюджет, где заканчиваются остатки и какие карточки требуют внимания.";
-      $("targetAudience").value = "Селлеры WB и Ozon с 50+ SKU и регулярными рекламными расходами";
-      $("mainProblem").value = "Селлер не видит каждый день, какие товары продаются в плюс, а какие создают скрытые убытки";
-
-      $("painLevel").value = 8;
-      $("urgency").value = 7;
-      $("frequency").value = "daily";
-      $("payReadiness").value = "good";
-      $("price").value = 2990;
-      $("monthlyUsers").value = 40;
-
-      $("competition").value = "medium";
-      $("differentiation").value = 7;
-      $("channel").value = "content";
-      $("accessToAudience").value = 6;
-
-      $("manualWork").value = "high";
-      $("retention").value = "strong";
-      $("dataAvailability").value = "medium";
-      $("buildComplexity").value = 6;
-
-      $("alternatives").value = "Excel-таблицы, ручные отчёты, аналитика в кабинетах маркетплейсов, подрядчики, разрозненные сервисы аналитики.";
-
-      syncAllRanges();
-      runValidation();
-    }
-
-    function resetForm() {
-      const idsToClear = [
-        "ideaName",
-        "ideaDescription",
-        "targetAudience",
-        "mainProblem",
-        "price",
-        "monthlyUsers",
-        "alternatives"
-      ];
-
-      idsToClear.forEach((id) => {
-        $(id).value = "";
-      });
-
-      $("businessModel").value = "b2b";
-      $("painLevel").value = 7;
-      $("urgency").value = 6;
-      $("frequency").value = "daily";
-      $("payReadiness").value = "none";
-      $("competition").value = "none";
-      $("differentiation").value = 6;
-      $("channel").value = "content";
-      $("accessToAudience").value = 5;
-      $("manualWork").value = "high";
-      $("retention").value = "strong";
-      $("dataAvailability").value = "easy";
-      $("buildComplexity").value = 5;
-
-      syncAllRanges();
-
-      $("scoreValue").textContent = "—";
-      $("scoreCircle").style.background = `
-        radial-gradient(circle at center, #ffffff 58%, transparent 59%),
-        conic-gradient(var(--yellow) 0deg, var(--green) 180deg, rgba(24,51,47,0.08) 180deg 360deg)
-      `;
-
-      $("verdictPill").className = "verdict-pill";
-      $("verdictPill").textContent = "⏳ Идея ещё не проверена";
-      $("resultTitle").textContent = "Заполните параметры идеи";
-      $("resultSubtitle").textContent = "Сервис покажет, насколько идея подходит для подписочной модели и с чего начать проверку спроса.";
-
-      $("metrics").innerHTML = `
-        <div class="metric">
-          <small>Подписочный потенциал</small>
-          <strong>—</strong>
-        </div>
-        <div class="metric">
-          <small>Готовность рынка</small>
-          <strong>—</strong>
-        </div>
-        <div class="metric">
-          <small>Сложность запуска</small>
-          <strong>—</strong>
-        </div>
-        <div class="metric">
-          <small>Потенциальный MRR</small>
-          <strong>—</strong>
-        </div>
-      `;
-
-      $("insights").innerHTML = `
-        <div class="empty-state">
-          Здесь появятся выводы после проверки идеи.
-        </div>
-      `;
-
-      $("report").value = "";
-      showToast("Форма очищена");
-    }
-
-    async function copyReport() {
-      const report = $("report").value.trim();
-
-      if (!report) {
-        showToast("Сначала проверьте идею");
-        return;
-      }
-
-      try {
-        await navigator.clipboard.writeText(report);
-        showToast("Отчёт скопирован");
-      } catch (error) {
-        $("report").select();
-        document.execCommand("copy");
-        showToast("Отчёт скопирован");
-      }
-    }
-
-    function saveHistory(data, result) {
-      const item = {
-        id: Date.now(),
-        ideaName: data.ideaName,
-        score: result.score,
-        verdict: result.verdict.label,
-        price: data.price,
-        mrr: result.estimatedMRR,
-        date: new Date().toLocaleString("ru-RU")
-      };
-
-      const history = loadHistory();
-      history.unshift(item);
-
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(history.slice(0, 6)));
-      } catch (error) {
-        console.warn("Не удалось сохранить историю", error);
-      }
-    }
-
-    function loadHistory() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : [];
-      } catch (error) {
-        return [];
-      }
-    }
-
-    function renderHistory() {
-      const history = loadHistory();
-
-      if (!history.length) {
-        $("history").innerHTML = `
-          <div class="empty-state">
-            История пока пустая. Проведите первую проверку.
-          </div>
-        `;
-        return;
-      }
-
-      $("history").innerHTML = history.map((item) => `
-        <div class="history-item">
-          <strong>${escapeHtml(item.ideaName)}</strong>
-          <span>Оценка ${item.score}/100 · ${escapeHtml(item.verdict)}</span>
-          <span>Цена: ${item.price > 0 ? money(item.price) + " / мес" : "не указана"} · MRR: ${item.mrr > 0 ? money(item.mrr) : "—"}</span>
-          <span>${escapeHtml(item.date)}</span>
-        </div>
-      `).join("");
-    }
-
-    function syncAllRanges() {
-      syncRange("painLevel", "painLevelValue");
-      syncRange("urgency", "urgencyValue");
-      syncRange("differentiation", "differentiationValue");
-      syncRange("accessToAudience", "accessValue");
-      syncRange("buildComplexity", "buildValue");
-    }
-
-    function escapeHtml(value) {
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    syncAllRanges();
-    renderHistory();
-  </script>
+  <script src="scripts/app.js"></script>
 </body>
 </html>
